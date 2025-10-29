@@ -1,0 +1,74 @@
+
+<!--
+Esta es la plantilla principal del Repositorio Educativo donde se
+definen las estructuras básicas.
+Las otras plantillas heredan las extensiones de esta.
+-->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Repositorio Educativo{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'repositorio/style.css' %}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="
+            {% if user.is_authenticated %}
+                {% if user.perfil.tipo == 'docente' %}
+                    {% url 'dashboard_docente' %}
+                {% else %}
+                    {% url 'dashboard_estudiante' %}
+                {% endif %}
+            {% else %}
+                {% url 'login' %}
+            {% endif %}
+        ">Repositorio</a>
+
+        <div class="d-flex align-items-center">
+            {% if user.is_authenticated %}
+                <span class="navbar-text text-white me-3">
+                    Hola, {{ user.username }}
+                </span>
+                <a class="btn btn-outline-light btn-sm me-2" href="{% url 'password_change' %}">
+                    Cambiar contraseña
+                </a>
+                <a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">
+                    Cerrar sesión
+                </a>
+            {% else %}
+                <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">
+                    Iniciar sesión
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- 🔧 Bloque para mostrar mensajes de Django -->
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="container mb-5">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Bootstrap JS (para que funcionen las alertas) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

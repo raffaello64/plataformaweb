@@ -1,0 +1,26 @@
+<!--
+En esta sección los docentes suben archivos al repositorio.
+-->
+
+
+{% extends 'repositorio/base.html' %}
+{% block title %}Subir Documento{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Subir nuevo documento</h3>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'dashboard_docente' %}" class="btn btn-secondary">Volver</a>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

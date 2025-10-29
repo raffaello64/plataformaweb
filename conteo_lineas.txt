@@ -1,0 +1,31 @@
+﻿53	D:\TFG\repositorio\management\commands\importar_usuarios.py
+0	D:\TFG\repositorio\management\commands\__init__.py
+0	D:\TFG\repositorio\management\__init__.py
+39	D:\TFG\repositorio\migrations\0001_initial.py
+31	D:\TFG\repositorio\migrations\0002_alter_documento_archivo_alter_documento_docente_and_more.py
+0	D:\TFG\repositorio\migrations\__init__.py
+61	D:\TFG\repositorio\templates\repositorio\base.html
+67	D:\TFG\repositorio\templates\repositorio\dashboard_docente.html
+51	D:\TFG\repositorio\templates\repositorio\dashboard_estudiante.html
+39	D:\TFG\repositorio\templates\repositorio\lista_documentos.html
+29	D:\TFG\repositorio\templates\repositorio\login.html
+25	D:\TFG\repositorio\templates\repositorio\password_change.html
+17	D:\TFG\repositorio\templates\repositorio\password_change_done.html
+36	D:\TFG\repositorio\templates\repositorio\registro.html
+19	D:\TFG\repositorio\templates\repositorio\subir_documento.html
+15	D:\TFG\repositorio\admin.py
+4	D:\TFG\repositorio\apps.py
+6	D:\TFG\repositorio\forms.py
+46	D:\TFG\repositorio\models.py
+2	D:\TFG\repositorio\tests.py
+15	D:\TFG\repositorio\urls.py
+108	D:\TFG\repositorio\views.py
+0	D:\TFG\repositorio\__init__.py
+10	D:\TFG\TFG\asgi.py
+71	D:\TFG\TFG\settings.py
+23	D:\TFG\TFG\urls.py
+10	D:\TFG\TFG\wsgi.py
+0	D:\TFG\TFG\__init__.py
+18	D:\TFG\manage.py
+---------------------------
+TOTAL DE LÍNEAS: 795
