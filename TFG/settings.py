@@ -4,6 +4,7 @@ Django settings for TFG project.
 
 import os
 from pathlib import Path
+import dj_database_url  # ✅ Para manejar automáticamente la base de datos de Render
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -50,15 +51,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
+# ✅ Configuración de base de datos: funciona tanto local como en Render
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tfg_db',
-        'USER': 'tfg_user',
-        'PASSWORD': 't2012.',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default='postgresql://tfg_user:t2012.@localhost:5432/tfg_db',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -68,11 +66,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# 🌎 Configuración de idioma y zona horaria (ajustada a Bogotá)
 LANGUAGE_CODE = 'es-es'
-TIME_ZONE = 'Europe/Madrid'
+TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
+# ⚙️ Archivos estáticos y multimedia
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
