@@ -15,10 +15,14 @@ class PerfilAdmin(admin.ModelAdmin):
     list_display = ('user', 'tipo', 'grupo')
     search_fields = ('user__username', 'tipo')
     list_filter = ('tipo', 'grupo')
-    # 🔹 Mostramos todos los grupos disponibles en un desplegable normal
-    raw_id_fields = ()  # Nos aseguramos de no usar IDs
-    autocomplete_fields = ()  # Desactivamos el buscador
-    fields = ('user', 'tipo', 'grupo')  # Forzamos que 'grupo' sea visible
+    # 🔹 Asegura que 'grupo' se muestre como desplegable
+    fields = ('user', 'tipo', 'grupo')
+    ordering = ('user',)
+    # 🔹 Forzamos a Django a cargar todos los grupos existentes
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'grupo':
+            kwargs["queryset"] = Grupo.objects.all().order_by('nombre')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 @admin.register(Documento)
 class DocumentoAdmin(admin.ModelAdmin):
