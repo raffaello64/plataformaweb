@@ -1,0 +1,35 @@
+# Archivos y carpetas de Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.py~
+*.pyc
+db.sqlite3
+
+# Entorno virtual
+venv/
+.env
+
+# Archivos temporales
+*.bak
+*.swp
+
+# Archivos de configuración de PyCharm / VSCode
+.idea/
+.vscode/
+
+# Archivos específicos del proyecto que NO deben ir a GitHub
+create_superuser.py
+run_migrations.py
+
+# Archivos de compilación o empaquetado
+*.egg-info/
+*.egg
+build/
+dist/
+
+# Archivos estáticos generados
+staticfiles/
+media/
