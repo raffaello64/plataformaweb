@@ -15,7 +15,10 @@ class PerfilAdmin(admin.ModelAdmin):
     list_display = ('user', 'tipo', 'grupo')
     search_fields = ('user__username', 'tipo')
     list_filter = ('tipo', 'grupo')
-    autocomplete_fields = ('grupo',)  # 🔹 Permite elegir grupos existentes
+    # 🔹 Mostramos todos los grupos disponibles en un desplegable normal
+    raw_id_fields = ()  # Nos aseguramos de no usar IDs
+    autocomplete_fields = ()  # Desactivamos el buscador
+    fields = ('user', 'tipo', 'grupo')  # Forzamos que 'grupo' sea visible
 
 @admin.register(Documento)
 class DocumentoAdmin(admin.ModelAdmin):
