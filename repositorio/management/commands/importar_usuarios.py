@@ -11,16 +11,25 @@ superusuario
 import csv
 import random
 import string
+import unicodedata
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from repositorio.models import Perfil, Grupo
 
 
 class Command(BaseCommand):
-    help = 'Importa usuarios (docentes y estudiantes) desde un archivo CSV y genera contraseñas automáticas.'
+    help = 'Importa usuarios desde un CSV y crea grupos correctamente (sin duplicar por tildes o mayúsculas).'
 
     def add_arguments(self, parser):
         parser.add_argument('archivo_csv', type=str, help='Ruta al archivo CSV con los usuarios.')
+
+    def normalizar(self, texto):
+        """Convierte el texto a minúsculas y sin tildes para comparar de forma robusta."""
+        if not texto:
+            return ''
+        texto = texto.lower().strip()
+        texto = unicodedata.normalize('NFKD', texto)
+        return ''.join(c for c in texto if not unicodedata.combining(c))
 
     def handle(self, *args, **kwargs):
         ruta_csv = kwargs['archivo_csv']
@@ -42,7 +51,16 @@ class Command(BaseCommand):
 
                 grupo = None
                 if grupo_nombre:
-                    grupo, _ = Grupo.objects.get_or_create(nombre=grupo_nombre)
+                    grupo_normalizado = self.normalizar(grupo_nombre)
+                    grupo_existente = None
+                    for g in Grupo.objects.all():
+                        if self.normalizar(g.nombre) == grupo_normalizado:
+                            grupo_existente = g
+                            break
+                    if grupo_existente:
+                        grupo = grupo_existente
+                    else:
+                        grupo = Grupo.objects.create(nombre=grupo_nombre)
 
                 user, _ = User.objects.get_or_create(
                     username=username,
@@ -73,4 +91,4 @@ class Command(BaseCommand):
             writer.writeheader()
             writer.writerows(usuarios_creados)
 
-        self.stdout.write("Todos los usuarios fueron creados y guardados en 'usuarios_creados.csv'.")
+        self.stdout.write("✅ Todos los usuarios fueron creados sin duplicar grupos y guardados en 'usuarios_creados.csv'.")
