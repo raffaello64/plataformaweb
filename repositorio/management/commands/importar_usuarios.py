@@ -18,13 +18,13 @@ from repositorio.models import Perfil, Grupo
 
 
 class Command(BaseCommand):
-    help = 'Importa usuarios desde un CSV y crea grupos correctamente (sin duplicar por tildes o mayúsculas).'
+    help = 'Creación de usuarios importados desde archivos CSV'
 
     def add_arguments(self, parser):
-        parser.add_argument('archivo_csv', type=str, help='Ruta al archivo CSV con los usuarios.')
+        parser.add_argument('archivo_csv', type=str, help='Ruta al archivo CSV')
 
     def normalizar(self, texto):
-        """Convierte el texto a minúsculas y sin tildes para comparar de forma robusta."""
+
         if not texto:
             return ''
         texto = texto.lower().strip()
@@ -91,4 +91,4 @@ class Command(BaseCommand):
             writer.writeheader()
             writer.writerows(usuarios_creados)
 
-        self.stdout.write("✅ Todos los usuarios fueron creados sin duplicar grupos y guardados en 'usuarios_creados.csv'.")
+        self.stdout.write("usuarios creados correctamente y guardados en 'usuarios_creados.csv'.")
