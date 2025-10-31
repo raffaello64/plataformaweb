@@ -10,7 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-qjj4vs%(lu1b!ik*6e%8$$63-ia)94!xt)7vx1s*mua59%rj*n'
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'plataformaweb.onrender.com']
+
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'plataformaweb.onrender.com',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,7 +29,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # permite servir archivos estáticos en producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -52,14 +57,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
-# Base de datos local y Render
+# ✅ Configuración de base de datos
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://tfg_user:t2012.@localhost:5432/tfg_db',
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=False  # Render maneja SSL internamente
     )
 }
 
+# Validadores de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -67,23 +74,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Zona horaria
-LANGUAGE_CODE = 'es-es'
+# 🌎 Zona horaria
+LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-# archivos estáticos
+# 📁 Archivos estáticos
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# 📁 Archivos multimedia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# 🔐 Autenticación
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
