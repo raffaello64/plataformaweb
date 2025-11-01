@@ -26,7 +26,7 @@ def login_view(request):
             login(request, user)
             perfil = Perfil.objects.filter(user=user).first()
 
-            # 🔧 Si el usuario no tiene perfil, lo mandamos al admin
+
             if not perfil:
                 messages.warning(request, "No tienes un perfil asignado. Accede al panel de administración.")
                 return redirect('/admin/')
@@ -41,24 +41,24 @@ def login_view(request):
     return render(request, 'repositorio/login.html')
 
 
-# --- LOGOUT ---
+# Cerrar sesión
 @login_required
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
-# --- DASHBOARD DOCENTE ---
+# Página de inicio del docente
 @login_required
 def dashboard_docente_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-    # 🔧 Si no tiene perfil, redirigimos al admin
+
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
 
-    # 🔧 Si no es docente, lo mandamos al dashboard del estudiante
+
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
 
@@ -69,17 +69,17 @@ def dashboard_docente_view(request):
     })
 
 
-# --- DASHBOARD ESTUDIANTE ---
+# Página de inicio del estudiante
 @login_required
 def dashboard_estudiante_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-    # 🔧 Si no tiene perfil, redirigir al admin
+
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
 
-    # 🔧 Si es docente, redirigir al dashboard docente
+
     if perfil.tipo == 'docente':
         return redirect('dashboard_docente')
 
@@ -93,17 +93,17 @@ def dashboard_estudiante_view(request):
     })
 
 
-# --- SUBIR DOCUMENTO (solo docente) ---
+# Subida de documentos por parte del docente
 @login_required
 def subir_documento_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-    # 🔧 Si no tiene perfil, redirigir al admin
+
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
 
-    # 🔧 Si no es docente, no puede subir documentos
+
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
 
@@ -119,19 +119,19 @@ def subir_documento_view(request):
         form = DocumentoForm()
 
     return render(request, 'repositorio/subir_documento.html', {'form': form, 'perfil': perfil})
-# --- ELIMINAR DOCUMENTO (solo docente) ---
+# Eliminar documentos
 @login_required
 def eliminar_documento_view(request, documento_id):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-    # Validar que tenga perfil y sea docente
+    # verificación de perfil
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
 
-    # Buscar documento
+
     try:
         documento = Documento.objects.get(id=documento_id, docente=request.user)
     except Documento.DoesNotExist:

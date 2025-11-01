@@ -5,9 +5,6 @@ Django settings for TFG project.
 import os
 from pathlib import Path
 import dj_database_url
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,7 +13,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'plataformaweb.onrender.com']
 
+# ==========================
 # Aplicaciones instaladas
+# ==========================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -25,11 +24,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'repositorio',
-    'cloudinary',
     'cloudinary_storage',
+    'cloudinary',
 ]
 
+# ==========================
 # Middleware
+# ==========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -43,7 +44,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'TFG.urls'
 
-# Configuración de plantillas
+# ==========================
+# Plantillas
+# ==========================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -61,7 +64,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
-# Conexión de base de datos (Render o local)
+# ==========================
+# Base de datos
+# ==========================
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv(
@@ -73,7 +78,9 @@ DATABASES = {
     )
 }
 
+# ==========================
 # Validadores de contraseñas
+# ==========================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -81,7 +88,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Configuración regional
+# Zona horaria
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
@@ -93,19 +100,25 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configuración de Cloudinary
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# Valores de API de cloudinary
-cloudinary.config(
-    cloud_name="dgkwcrtis",
-    api_key="374216183566887",
-    api_secret="bFWLAVhE5dFTa3tZ3HSoiQOSSEs"
-)
 
+# Archivos de cloudinary
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+
+# ==========================
 # Autenticación
+# ==========================
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 

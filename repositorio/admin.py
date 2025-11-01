@@ -3,11 +3,11 @@ Acá se ingresan los modelos al panel que administra el superusuario.
 """
 
 from django.contrib import admin
-from django.contrib.auth.models import Group  # 👈 Importa el modelo de grupos del sistema
+from django.contrib.auth.models import Group  #
 from .models import Perfil, Documento, Grupo
 
 
-# 🔹 Ocultar el modelo Group del panel de administración (los grupos del sistema de Django)
+# En el panel de administración se oculta el modelo group
 admin.site.unregister(Group)
 
 
@@ -25,7 +25,7 @@ class PerfilAdmin(admin.ModelAdmin):
     fields = ('user', 'tipo', 'grupo')
     ordering = ('user',)
 
-    # Forzar que Django cargue todos los grupos en el desplegable (ordenados alfabéticamente)
+    # Cargar para mostrar los grupos en el desplegable
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'grupo':
             kwargs["queryset"] = Grupo.objects.all().order_by('nombre')

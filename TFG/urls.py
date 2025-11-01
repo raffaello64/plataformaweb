@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views  # 👈 Import necesario
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # Panel de administración
@@ -17,7 +17,7 @@ urlpatterns = [
     # App principal
     path('', include('repositorio.urls')),
 
-    # --- Cambio de contraseña ---
+    # Cambio de contraseña
     path('password_change/', auth_views.PasswordChangeView.as_view(
         template_name='repositorio/password_change.html',
         success_url='/password_change/done/'
@@ -28,7 +28,7 @@ urlpatterns = [
     ), name='password_change_done'),
 ]
 
-# --- Archivos estáticos y media en desarrollo ---
+# Archivos estáticos
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     # Login (acceso por / y /login/)
     path('', views.login_view, name='login'),
-    path('login/', views.login_view),  # ← añade esta línea
+    path('login/', views.login_view, name='login'),
 
     # Logout
     path('logout/', views.logout_view, name='logout'),
