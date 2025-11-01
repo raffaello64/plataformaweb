@@ -4,32 +4,27 @@ se crean usuarios y contraseñas automáticamente basado en los
 nombres y apellidos. El usuario debe cambiar la contraseña
 después de iniciar sesión y la opción de asignar el usuario
 y contraseña manualmente sigue existiendo por parte del
-superusuario
+superusuario.
+Se crea un archivo CSV con los nuevos usuarios y contraseñas
+y la respectiva asignación de grupos
 
 """
 
 import csv
 import random
 import string
-import unicodedata
+import os
+from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from repositorio.models import Perfil, Grupo
 
 
 class Command(BaseCommand):
-    help = 'Creación de usuarios importados desde archivos CSV'
+    help = 'Importación de usuarios desde archivos CSV para creación de contraseñas y asignación de grupos.'
 
     def add_arguments(self, parser):
-        parser.add_argument('archivo_csv', type=str, help='Ruta al archivo CSV')
-
-    def normalizar(self, texto):
-
-        if not texto:
-            return ''
-        texto = texto.lower().strip()
-        texto = unicodedata.normalize('NFKD', texto)
-        return ''.join(c for c in texto if not unicodedata.combining(c))
+        parser.add_argument('archivo_csv', type=str, help='Ruta de archivo CSV.')
 
     def handle(self, *args, **kwargs):
         ruta_csv = kwargs['archivo_csv']
@@ -44,30 +39,28 @@ class Command(BaseCommand):
                 tipo = fila['tipo'].strip().lower()
                 grupo_nombre = fila.get('grupo', '').strip()
 
+                # Generación aleatoria de usuario y password para posterior cambio por parte del usuario
                 username = f"{nombre[0].lower()}.{apellido.lower()}"
-
                 caracteres = string.ascii_letters + string.digits + "!@#$%^&*()"
                 password = ''.join(random.choice(caracteres) for _ in range(8))
 
+                # Asignación o creación de grupo
                 grupo = None
                 if grupo_nombre:
-                    grupo_normalizado = self.normalizar(grupo_nombre)
-                    grupo_existente = None
-                    for g in Grupo.objects.all():
-                        if self.normalizar(g.nombre) == grupo_normalizado:
-                            grupo_existente = g
-                            break
-                    if grupo_existente:
-                        grupo = grupo_existente
-                    else:
-                        grupo = Grupo.objects.create(nombre=grupo_nombre)
+                    grupo, _ = Grupo.objects.get_or_create(nombre=grupo_nombre)
 
-                user, _ = User.objects.get_or_create(
+                # Creación de usuario
+                user, creado = User.objects.get_or_create(
                     username=username,
                     defaults={'first_name': nombre, 'last_name': apellido}
                 )
-                user.set_password(password)
-                user.save()
+
+                if creado:
+                    user.set_password(password)
+                    user.save()
+                    contrasena_guardar = password
+                else:
+                    contrasena_guardar = '(ya existía)'
 
                 Perfil.objects.update_or_create(
                     user=user,
@@ -80,15 +73,20 @@ class Command(BaseCommand):
                     'usuario': username,
                     'tipo': tipo,
                     'grupo': grupo_nombre,
-                    'contraseña': password
+                    'contraseña': contrasena_guardar
                 })
 
-                self.stdout.write(f"{username} ({tipo}) creado correctamente - Contraseña: {password}")
+                self.stdout.write(f"{username} ({tipo}) procesado correctamente.")
 
-        with open('usuarios_creados.csv', 'w', newline='', encoding='utf-8') as f_out:
+        # Almacenamiento de usuario y contraseña creada en CSV con fecha
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        archivo_salida = f"usuarios_creados_{timestamp}.csv"
+
+
+        with open(archivo_salida, 'w', newline='', encoding='utf-8') as f_out:
             campos = ['nombre', 'apellido', 'usuario', 'tipo', 'grupo', 'contraseña']
             writer = csv.DictWriter(f_out, fieldnames=campos)
             writer.writeheader()
             writer.writerows(usuarios_creados)
 
-        self.stdout.write("usuarios creados correctamente y guardados en 'usuarios_creados.csv'.")
+        self.stdout.write(self.style.SUCCESS(f"Usuarios almacenados en '{archivo_salida}'"))
