@@ -95,11 +95,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración de Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
+# Valores de API de cloudinary
 cloudinary.config(
-    cloud_name="dgkwcrtis",          # Reemplaza con tu cloud_name real
-    api_key="TU_API_KEY_REAL",       # Reemplaza con tu API Key real
-    api_secret="TU_API_SECRET_REAL"  # Reemplaza con tu API Secret real
+    cloud_name="dgkwcrtis",
+    api_key="374216183566887",
+    api_secret="bFWLAVhE5dFTa3tZ3HSoiQOSSEs"
 )
 
 # Autenticación
