@@ -5,6 +5,9 @@ Django settings for TFG project.
 import os
 from pathlib import Path
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -55,7 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
-# COnexión de base de datos con Render
+# Conexión de base de datos con Render
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv(
@@ -84,15 +87,18 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configuración de Cloudinary
+# Configuración de Cloudinary (solo necesitas CLOUDINARY_URL en Render)
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
+
+cloudinary.config(
+    cloud_name="dgkwcrtis",
+    api_key="TU_API_KEY_AQUI",
+    api_secret="TU_API_SECRET_AQUI",
+)
+# 🔹 Usa los valores reales de tu cuenta (no los de ejemplo)
 
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
