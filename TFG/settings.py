@@ -13,9 +13,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'plataformaweb.onrender.com']
 
-# ==========================
+
 # Aplicaciones instaladas
-# ==========================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,13 +24,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'repositorio',
-    'cloudinary_storage',
-    'cloudinary',
 ]
 
-# ==========================
+
 # Middleware
-# ==========================
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -44,9 +42,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'TFG.urls'
 
-# ==========================
+
 # Plantillas
-# ==========================
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -64,9 +62,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
-# ==========================
+
 # Base de datos
-# ==========================
+
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv(
@@ -78,9 +76,9 @@ DATABASES = {
     )
 }
 
-# ==========================
+
 # Validadores de contraseñas
-# ==========================
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -88,37 +86,34 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+
 # Zona horaria
+
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
+
 # Archivos estáticos
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# Archivos de cloudinary
+# Archivos subidos
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# ==========================
 # Autenticación
-# ==========================
+
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 

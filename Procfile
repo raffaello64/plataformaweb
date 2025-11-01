@@ -1,1 +1,1 @@
-web: gunicorn TFG.wsgi
+web: gunicorn TFG.wsgi:application
