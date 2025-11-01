@@ -16,6 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'plataformaweb.onrender.com']
 
+# Aplicaciones instaladas
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -41,6 +43,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'TFG.urls'
 
+# Configuración de plantillas
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -58,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TFG.wsgi.application'
 
-# Conexión de base de datos con Render
+# Conexión de base de datos (Render o local)
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv(
@@ -70,6 +73,7 @@ DATABASES = {
     )
 }
 
+# Validadores de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -77,28 +81,31 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Configuración regional
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
+# Archivos estáticos
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configuración de Cloudinary (solo necesitas CLOUDINARY_URL en Render)
+# Configuración de Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 cloudinary.config(
-    cloud_name="dgkwcrtis",
-    api_key="TU_API_KEY_AQUI",
-    api_secret="TU_API_SECRET_AQUI",
+    cloud_name="dgkwcrtis",          # Reemplaza con tu cloud_name real
+    api_key="TU_API_KEY_REAL",       # Reemplaza con tu API Key real
+    api_secret="TU_API_SECRET_REAL"  # Reemplaza con tu API Secret real
 )
-# 🔹 Usa los valores reales de tu cuenta (no los de ejemplo)
 
+# Autenticación
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
