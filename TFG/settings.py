@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-qjj4vs%(lu1b!ik*6e%8$$63-ia)94!xt)7vx1s*mua59%rj*n'
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'plataformaweb.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '46.62.211.190', '*']
 
 
 # Aplicaciones instaladas
@@ -66,14 +66,14 @@ WSGI_APPLICATION = 'TFG.wsgi.application'
 # Base de datos
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv(
-            'DATABASE_URL',
-            'postgresql://tfg_user:t2012.@localhost:5432/tfg_db'
-        ),
-        conn_max_age=600,
-        ssl_require=False
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'tfg_db',
+        'USER': 'tfg_user',
+        'PASSWORD': 't2012.',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 

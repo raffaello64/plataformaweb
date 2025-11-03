@@ -33,3 +33,4 @@ dist/
 # Archivos estáticos generados
 staticfiles/
 media/
+*.csv
