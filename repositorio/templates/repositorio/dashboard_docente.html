@@ -45,9 +45,12 @@ los archivos que han subido a la plataforma y agregar si es necesario
                             <td>{{ doc.titulo }}</td>
                             <td>{{ doc.grupo.nombre }}</td>
                             <td>
-                                <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                                    Ver
                                 </a>
+
                                 <a href="{% url 'descargar_documento' doc.id %}" class="btn btn-outline-success btn-sm">
+                                    Descargar
                                 </a>
                             </td>
 

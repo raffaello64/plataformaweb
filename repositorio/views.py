@@ -153,10 +153,19 @@ def descargar_documento_view(request, documento_id):
     if not documento.archivo:
         raise Http404("Archivo no encontrado")
 
-    # Fuerza la descarga del PDF
-    return FileResponse(
+    # Obtener nombre limpio del archivo
+    filename = os.path.basename(documento.archivo.name)
+
+    # Forzar encabezados de descarga
+    response = FileResponse(
         documento.archivo.open('rb'),
         as_attachment=True,
-        filename=os.path.basename(documento.archivo.name),
-        content_type='application/pdf'
+        filename=filename,
+        content_type='application/octet-stream'  # Fuerza descarga en móviles
     )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+
+    return response
