@@ -9,6 +9,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from repositorio import views  # 👈 agregado
 
 urlpatterns = [
     # Panel de administración
@@ -16,6 +17,9 @@ urlpatterns = [
 
     # App principal
     path('', include('repositorio.urls')),
+
+    # Ruta para importar usuarios
+    path('importar_usuarios/', views.importar_usuarios_view, name='importar_usuarios'),
 
     # Cambio de contraseña
     path('password_change/', auth_views.PasswordChangeView.as_view(
