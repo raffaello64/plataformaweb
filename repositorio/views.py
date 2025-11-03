@@ -5,15 +5,15 @@ y se generan las páginas correspondientes.
 """
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponse
 from django.utils.crypto import get_random_string
 import csv
 import os
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
 
 from .forms import DocumentoForm, UploadFileForm
 from .models import Documento, Perfil, Grupo
@@ -185,6 +185,7 @@ def importar_usuarios_view(request):
                 tipo = row['tipo'].lower().strip()
                 grupo_nombre = row.get('grupo', '').strip() or None
 
+                # Evitar duplicados
                 if User.objects.filter(username=username).exists():
                     continue
 
@@ -197,6 +198,9 @@ def importar_usuarios_view(request):
 
                 Perfil.objects.create(user=user, tipo=tipo, grupo=grupo)
                 writer.writerow([username, password, tipo, grupo_nombre])
+
+            # ✅ Mostrar mensaje de éxito en pantalla
+            messages.success(request, "Usuarios importados correctamente. El archivo con credenciales se descargará automáticamente.")
 
             return response
     else:
