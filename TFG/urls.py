@@ -16,9 +16,6 @@ urlpatterns = [
     # Panel de administración
     path('admin/', admin.site.urls),
 
-    path('admin/sitio_base/', sitio_base_admin_view, name='sitio_base_admin'),
-
-
     # App principal
     path('', include('repositorio.urls')),
 
