@@ -3,14 +3,12 @@ Acá se ingresan los modelos al panel que administra el superusuario.
 """
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.urls import reverse
-from django.http import HttpResponseRedirect
 from django.utils.html import format_html
+from django.contrib.auth.models import Group
 from .models import Perfil, Documento, Grupo
 
-
-# Se oculta la sección de grupos
+# Ocultar el modelo Group del panel
 admin.site.unregister(Group)
 
 
@@ -41,14 +39,23 @@ class DocumentoAdmin(admin.ModelAdmin):
     list_filter = ('grupo', 'creado')
 
 
-# Enlace a importar usuarios desde la pagina de superusuario
-class ImportarUsuariosAdmin(admin.ModelAdmin):
+# ✅ Agregar el enlace personalizado al panel de administración
+class ImportarUsuariosAdminView(admin.ModelAdmin):
     change_list_template = "admin/importar_datos_enlace.html"
 
-    def changelist_view(self, request, extra_context=None):
-        # lleva a la sección importar usuarios
-        return HttpResponseRedirect(reverse('importar_usuarios'))
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
-
-admin.site.register(type('ImportarUsuarios', (), {}), ImportarUsuariosAdmin)
+# En lugar de registrar un modelo falso, registramos la vista “huérfana”
+admin.site.register_view(
+    "importar_usuarios",
+    view=ImportarUsuariosAdminView,
+    name="Importar Usuarios"
+)
