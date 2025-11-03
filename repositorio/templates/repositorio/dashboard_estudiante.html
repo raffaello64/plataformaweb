@@ -41,10 +41,12 @@ pueda visualizar los archivos subidos por el docente.
                             <td>{{ doc.titulo }}</td>
                             <td>{{ doc.docente.username }}</td>
                             <td>
-                                <a href="{{ doc.archivo.url }}" target="_blank" rel="noopener noreferrer">
-                                    Abrir / Descargar
+                                <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                </a>
+                                <a href="{% url 'descargar_documento' doc.id %}" class="btn btn-outline-success btn-sm">
                                 </a>
                             </td>
+
                             <td>{{ doc.creado|date:"d/m/Y H:i" }}</td>
                         </tr>
                         {% endfor %}

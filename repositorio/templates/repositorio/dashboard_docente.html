@@ -45,10 +45,12 @@ los archivos que han subido a la plataforma y agregar si es necesario
                             <td>{{ doc.titulo }}</td>
                             <td>{{ doc.grupo.nombre }}</td>
                             <td>
-                                <a href="{{ doc.archivo.url }}" target="_blank" rel="noopener noreferrer">
-                                    Abrir / Descargar
+                                <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                </a>
+                                <a href="{% url 'descargar_documento' doc.id %}" class="btn btn-outline-success btn-sm">
                                 </a>
                             </td>
+
                             <td>{{ doc.creado|date:"d/m/Y H:i" }}</td>
                             <td>
                                 <form method="post" action="{% url 'eliminar_documento' doc.id %}" style="display:inline;">

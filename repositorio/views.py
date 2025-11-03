@@ -12,6 +12,9 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .forms import DocumentoForm
 from .models import Documento, Perfil
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404
+import os
 
 
 # --- LOGIN ---
@@ -142,3 +145,18 @@ def eliminar_documento_view(request, documento_id):
     documento.delete()
     messages.success(request, "Documento eliminado correctamente.")
     return redirect('dashboard_docente')
+
+@login_required
+def descargar_documento_view(request, documento_id):
+    documento = get_object_or_404(Documento, pk=documento_id)
+
+    if not documento.archivo:
+        raise Http404("Archivo no encontrado")
+
+    # Fuerza la descarga del PDF
+    return FileResponse(
+        documento.archivo.open('rb'),
+        as_attachment=True,
+        filename=os.path.basename(documento.archivo.name),
+        content_type='application/pdf'
+    )
