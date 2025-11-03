@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% block title %}Sitio Base - Plataforma Educa{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">Sitio Base - Plataforma Educa</a>
+</h1>
+<a href="{% url 'importar_usuarios' %}" class="button"
+   style="margin-left:20px; color:white; background:#417690;
+          padding:6px 12px; border-radius:6px; text-decoration:none;">
+  Importar Usuarios
+</a>
+{% endblock %}
