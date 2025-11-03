@@ -5,19 +5,21 @@ y se generan las páginas correspondientes.
 """
 
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import DocumentoForm
-from .models import Documento, Perfil
-from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.http import FileResponse, Http404, HttpResponse
+from django.utils.crypto import get_random_string
+import csv
 import os
 
+from .forms import DocumentoForm, UploadFileForm
+from .models import Documento, Perfil, Grupo
 
-# --- LOGIN ---
+
+# Log in
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
@@ -28,7 +30,6 @@ def login_view(request):
         if user is not None:
             login(request, user)
             perfil = Perfil.objects.filter(user=user).first()
-
 
             if not perfil:
                 messages.warning(request, "No tienes un perfil asignado. Accede al panel de administración.")
@@ -56,11 +57,9 @@ def logout_view(request):
 def dashboard_docente_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
-
 
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
@@ -77,11 +76,9 @@ def dashboard_docente_view(request):
 def dashboard_estudiante_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
-
 
     if perfil.tipo == 'docente':
         return redirect('dashboard_docente')
@@ -96,16 +93,14 @@ def dashboard_estudiante_view(request):
     })
 
 
-# Subida de documentos por parte del docente
+# Subir archivos
 @login_required
 def subir_documento_view(request):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
-
 
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
@@ -122,18 +117,18 @@ def subir_documento_view(request):
         form = DocumentoForm()
 
     return render(request, 'repositorio/subir_documento.html', {'form': form, 'perfil': perfil})
-# Eliminar documentos
+
+
+# Eliminar archivos
 @login_required
 def eliminar_documento_view(request, documento_id):
     perfil = Perfil.objects.filter(user=request.user).first()
 
-    # verificación de perfil
     if not perfil:
         messages.warning(request, "Tu cuenta no tiene un perfil asignado.")
         return redirect('/admin/')
     if perfil.tipo != 'docente':
         return redirect('dashboard_estudiante')
-
 
     try:
         documento = Documento.objects.get(id=documento_id, docente=request.user)
@@ -141,11 +136,12 @@ def eliminar_documento_view(request, documento_id):
         messages.error(request, "No se encontró el documento o no tienes permiso para eliminarlo.")
         return redirect('dashboard_docente')
 
-    # Eliminar documento
     documento.delete()
     messages.success(request, "Documento eliminado correctamente.")
     return redirect('dashboard_docente')
 
+
+# Descargar archivo
 @login_required
 def descargar_documento_view(request, documento_id):
     documento = get_object_or_404(Documento, pk=documento_id)
@@ -153,15 +149,13 @@ def descargar_documento_view(request, documento_id):
     if not documento.archivo:
         raise Http404("Archivo no encontrado")
 
-    # Obtener nombre limpio del archivo
     filename = os.path.basename(documento.archivo.name)
 
-    # Forzar encabezados de descarga
     response = FileResponse(
         documento.archivo.open('rb'),
         as_attachment=True,
         filename=filename,
-        content_type='application/octet-stream'  # Fuerza descarga en móviles
+        content_type='application/octet-stream'
     )
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -169,3 +163,43 @@ def descargar_documento_view(request, documento_id):
     response['Expires'] = '0'
 
     return response
+
+
+# Importar datos desde cdv para creación de credenciales
+@user_passes_test(lambda u: u.is_superuser)
+def importar_usuarios_view(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            archivo = form.cleaned_data['archivo']
+            reader = csv.DictReader(archivo.read().decode('utf-8').splitlines())
+
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=usuarios_creados.csv'
+
+            writer = csv.writer(response)
+            writer.writerow(['username', 'password', 'tipo', 'grupo'])
+
+            for row in reader:
+                username = row['username']
+                tipo = row['tipo'].lower().strip()
+                grupo_nombre = row.get('grupo', '').strip() or None
+
+                if User.objects.filter(username=username).exists():
+                    continue
+
+                password = get_random_string(length=10)
+                user = User.objects.create_user(username=username, password=password)
+
+                grupo = None
+                if grupo_nombre:
+                    grupo, _ = Grupo.objects.get_or_create(nombre=grupo_nombre)
+
+                Perfil.objects.create(user=user, tipo=tipo, grupo=grupo)
+                writer.writerow([username, password, tipo, grupo_nombre])
+
+            return response
+    else:
+        form = UploadFileForm()
+
+    return render(request, 'repositorio/importar_usuarios.html', {'form': form})

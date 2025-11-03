@@ -25,3 +25,6 @@ class PerfilForm(forms.ModelForm):
     class Meta:
         model = Perfil
         fields = ['user', 'tipo', 'grupo']
+
+class UploadFileForm(forms.Form):
+    archivo = forms.FileField(label="Seleccionar archivo CSV")
