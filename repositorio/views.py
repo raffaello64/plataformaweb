@@ -55,6 +55,10 @@ def logout_view(request):
 # Página de inicio del docente
 @login_required
 def dashboard_docente_view(request):
+    # Si es superusuario, no mostrar mensaje ni exigir perfil
+    if request.user.is_superuser:
+        return redirect('/admin/')
+
     perfil = Perfil.objects.filter(user=request.user).first()
 
     if not perfil:
@@ -69,7 +73,6 @@ def dashboard_docente_view(request):
         'documentos': documentos,
         'perfil': perfil
     })
-
 
 # Página de inicio del estudiante
 @login_required
