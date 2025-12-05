@@ -29,6 +29,12 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+
+            # ✅ Si es superusuario, no mirar perfil ni mostrar aviso
+            if user.is_superuser:
+                return redirect('/admin/')
+
+            # ✅ Solo usuarios normales necesitan perfil
             perfil = Perfil.objects.filter(user=user).first()
 
             if not perfil:
