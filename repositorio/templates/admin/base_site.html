@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Plataforma Educa</a>
+</h1>
+{% endblock %}
+
+{# Esto vacía el bloque donde Django mete "Ver el sitio" #}
+{% block nav-global %}
+{% endblock %}
