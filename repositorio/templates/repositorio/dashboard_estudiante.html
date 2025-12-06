@@ -21,10 +21,16 @@ pueda visualizar los archivos subidos por el docente.
 
     <!-- Botón de Mensajes -->
     <div class="mb-3">
-        <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm">
-            Mensajes
-        </a>
+    <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm position-relative">
+        Mensajes
+        {% if mensajes_no_leidos %}
+            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                <span class="visually-hidden">Nuevos mensajes</span>
+            </span>
+        {% endif %}
+    </a>
     </div>
+
 
     <div class="card shadow-sm">
         <div class="card-body">

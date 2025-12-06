@@ -74,10 +74,19 @@ def dashboard_docente_view(request):
         return redirect('dashboard_estudiante')
 
     documentos = Documento.objects.filter(docente=request.user).order_by('-creado')
+
+    # Contar mensajes no leídos para el usuario actual
+    mensajes_no_leidos = Mensaje.objects.filter(
+        destinatario=request.user,
+        leido=False
+    ).count()
+
     return render(request, 'repositorio/dashboard_docente.html', {
         'documentos': documentos,
-        'perfil': perfil
+        'perfil': perfil,
+        'mensajes_no_leidos': mensajes_no_leidos,
     })
+
 
 
 # Página de inicio del estudiante
@@ -95,11 +104,19 @@ def dashboard_estudiante_view(request):
     grupo = perfil.grupo if perfil else None
     documentos = Documento.objects.filter(grupo=grupo).order_by('-creado') if grupo else Documento.objects.none()
 
+    # Contar mensajes no leídos para el usuario actual
+    mensajes_no_leidos = Mensaje.objects.filter(
+        destinatario=request.user,
+        leido=False
+    ).count()
+
     return render(request, 'repositorio/dashboard_estudiante.html', {
         'documentos': documentos,
         'grupo': grupo,
-        'perfil': perfil
+        'perfil': perfil,
+        'mensajes_no_leidos': mensajes_no_leidos,
     })
+
 
 
 # Subir archivos

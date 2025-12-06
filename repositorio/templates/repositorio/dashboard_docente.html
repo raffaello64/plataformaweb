@@ -20,9 +20,18 @@ los archivos que han subido a la plataforma y agregar si es necesario
     </div>
 
     <div class="mb-3 d-flex gap-2">
-        <a href="{% url 'subir_documento' %}" class="btn btn-success btn-sm">Subir nuevo documento</a>
-        <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm">Mensajes</a>
-    </div>
+    <a href="{% url 'subir_documento' %}" class="btn btn-success btn-sm">Subir nuevo documento</a>
+
+    <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm position-relative">
+        Mensajes
+        {% if mensajes_no_leidos %}
+            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                <span class="visually-hidden">Nuevos mensajes</span>
+            </span>
+        {% endif %}
+    </a>
+</div>
+
 
     <div class="card shadow-sm">
         <div class="card-body">
