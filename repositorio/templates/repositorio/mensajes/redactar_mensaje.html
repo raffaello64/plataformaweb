@@ -24,18 +24,18 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <label for="destinatario" class="form-label">Destinatario</label>
-                    {{ form.destinatario|as_widget }}
+                    <label class="form-label">Destinatario</label>
+                    {{ form.destinatario }}
                 </div>
 
                 <div class="mb-3">
-                    <label for="asunto" class="form-label">Asunto</label>
-                    {{ form.asunto|as_widget }}
+                    <label class="form-label">Asunto</label>
+                    {{ form.asunto }}
                 </div>
 
                 <div class="mb-3">
-                    <label for="contenido" class="form-label">Mensaje</label>
-                    {{ form.contenido|as_widget }}
+                    <label class="form-label">Mensaje</label>
+                    {{ form.contenido }}
                 </div>
 
                 <button type="submit" class="btn btn-primary">
