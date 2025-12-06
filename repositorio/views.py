@@ -278,8 +278,8 @@ def redactar_mensaje_view(request):
             mensaje = form.save(commit=False)
             mensaje.remitente = request.user
 
-            # Si viene un mensaje original en la URL (?respuesta_de=ID), guardarlo
-            respuesta_id = request.GET.get('respuesta_de')
+            # Leer respuesta_de desde el POST (hidden en el formulario)
+            respuesta_id = request.POST.get('respuesta_de')
             if respuesta_id:
                 mensaje.respuesta_de = Mensaje.objects.filter(id=respuesta_id).first()
 
@@ -288,6 +288,7 @@ def redactar_mensaje_view(request):
             return redirect('bandeja_entrada')
     else:
         initial = {}
+        respuesta_id = request.GET.get('respuesta_de')
 
         # Prellenar destinatario si viene ?para=ID
         destinatario_id = request.GET.get('para')
@@ -307,6 +308,7 @@ def redactar_mensaje_view(request):
 
     return render(request, 'repositorio/mensajes/redactar_mensaje.html', {
         'form': form,
+        'respuesta_de_id': request.GET.get('respuesta_de', ''),
     })
 
 

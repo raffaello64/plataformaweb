@@ -23,6 +23,11 @@
             <form method="post">
                 {% csrf_token %}
 
+                {# Campo oculto para conservar el mensaje original al responder #}
+                {% if respuesta_de_id %}
+                    <input type="hidden" name="respuesta_de" value="{{ respuesta_de_id }}">
+                {% endif %}
+
                 <div class="mb-3">
                     <label class="form-label">Destinatario</label>
                     {{ form.destinatario }}
