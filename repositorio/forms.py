@@ -37,10 +37,9 @@ class MensajeForm(forms.ModelForm):
         fields = ['destinatario', 'asunto', 'contenido']
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # usuario logueado
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        # Si no hay usuario o no hay perfil → no mostrar destinatarios
         if user is None:
             self.fields['destinatario'].queryset = User.objects.none()
             return
@@ -53,20 +52,23 @@ class MensajeForm(forms.ModelForm):
 
         grupo = perfil.grupo
 
-        # DOCENTE → puede escribir a ESTUDIANTES del mismo grupo
+        # Docente → puede escribir a estudiantes del mismo grupo
         if perfil.tipo == 'docente':
             self.fields['destinatario'].queryset = User.objects.filter(
                 perfil__grupo=grupo,
                 perfil__tipo='estudiante'
             ).order_by('username')
 
-        # ESTUDIANTE → puede escribir a DOCENTES del mismo grupo
+        # Estudiante → puede escribir a docentes del mismo grupo
         elif perfil.tipo == 'estudiante':
             self.fields['destinatario'].queryset = User.objects.filter(
                 perfil__grupo=grupo,
                 perfil__tipo='docente'
             ).order_by('username')
 
-        # Por seguridad
         else:
             self.fields['destinatario'].queryset = User.objects.none()
+
+    def clean_asunto(self):
+        asunto = self.cleaned_data.get("asunto", "")
+        return asunto.strip()

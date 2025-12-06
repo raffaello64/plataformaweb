@@ -6,27 +6,48 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Mensaje</h2>
+
         <div class="d-flex gap-2">
-            {% if dashboard_url %}
-                <a href="{% url dashboard_url %}" class="btn btn-outline-secondary btn-sm">
-                    Volver al panel
+
+            {% if request.user.perfil.tipo == 'docente' %}
+                <a href="{% url 'dashboard_docente' %}" class="btn btn-outline-secondary btn-sm">
+                    Volver a inicio
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard_estudiante' %}" class="btn btn-outline-secondary btn-sm">
+                    Volver a inicio
                 </a>
             {% endif %}
+
             <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-secondary btn-sm">
                 Ver recibidos
             </a>
+
             <a href="{% url 'mensajes_enviados' %}" class="btn btn-outline-secondary btn-sm">
                 Ver enviados
             </a>
+
             <a href="{% url 'redactar_mensaje' %}?para={{ usuario_respuesta.id }}&asunto={{ mensaje.asunto|urlencode }}&respuesta_de={{ mensaje.id }}"
                class="btn btn-primary btn-sm">
                 Responder
             </a>
+
+            {# Solo el remitente puede eliminar su mensaje #}
+            {% if mensaje.remitente == request.user %}
+                <form action="{% url 'eliminar_mensaje' mensaje.id %}" method="post"
+                      onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje enviado?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        Eliminar
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-body">
+
             {% if mensaje.respuesta_de %}
                 <p class="text-muted small">
                     Respuesta a: <strong>{{ mensaje.respuesta_de.asunto }}</strong>
@@ -42,6 +63,7 @@
             <hr>
 
             <p style="white-space: pre-wrap;">{{ mensaje.contenido }}</p>
+
         </div>
     </div>
 

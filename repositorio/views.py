@@ -29,11 +29,9 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
-            # ✅ Si es superusuario, no mirar perfil ni mostrar aviso
             if user.is_superuser:
                 return redirect('/admin/')
 
-            # ✅ Solo usuarios normales necesitan perfil
             perfil = Perfil.objects.filter(user=user).first()
 
             if not perfil:
@@ -60,7 +58,6 @@ def logout_view(request):
 # Página de inicio del docente
 @login_required
 def dashboard_docente_view(request):
-    # Si es superusuario, no mostrar mensaje ni exigir perfil
     if request.user.is_superuser:
         return redirect('/admin/')
 
@@ -75,7 +72,6 @@ def dashboard_docente_view(request):
 
     documentos = Documento.objects.filter(docente=request.user).order_by('-creado')
 
-    # Contar mensajes no leídos
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
         leido=False
@@ -103,7 +99,6 @@ def dashboard_estudiante_view(request):
     grupo = perfil.grupo if perfil else None
     documentos = Documento.objects.filter(grupo=grupo).order_by('-creado') if grupo else Documento.objects.none()
 
-    # Contar mensajes no leídos
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
         leido=False
@@ -209,7 +204,6 @@ def importar_usuarios_view(request):
                 tipo = row['tipo'].lower().strip()
                 grupo_nombre = row.get('grupo', '').strip() or None
 
-                # Evitar duplicados
                 if User.objects.filter(username=username).exists():
                     continue
 
@@ -223,7 +217,6 @@ def importar_usuarios_view(request):
                 Perfil.objects.create(user=user, tipo=tipo, grupo=grupo)
                 writer.writerow([username, password, tipo, grupo_nombre])
 
-            # ✅ Mostrar mensaje de éxito en pantalla
             messages.success(
                 request,
                 "Usuarios importados correctamente. El archivo con credenciales se descargará automáticamente."
@@ -242,9 +235,6 @@ def importar_usuarios_view(request):
 
 @login_required
 def bandeja_entrada_view(request):
-    """
-    Muestra los mensajes recibidos por el usuario logueado.
-    """
     mensajes = Mensaje.objects.filter(destinatario=request.user).order_by('-creado')
     return render(request, 'repositorio/mensajes/bandeja_entrada.html', {
         'mensajes': mensajes,
@@ -253,9 +243,6 @@ def bandeja_entrada_view(request):
 
 @login_required
 def mensajes_enviados_view(request):
-    """
-    Muestra los mensajes enviados por el usuario logueado.
-    """
     mensajes = Mensaje.objects.filter(remitente=request.user).order_by('-creado')
     return render(request, 'repositorio/mensajes/mensajes_enviados.html', {
         'mensajes': mensajes,
@@ -264,21 +251,12 @@ def mensajes_enviados_view(request):
 
 @login_required
 def redactar_mensaje_view(request):
-    """
-    Permite enviar un mensaje a usuarios del mismo grupo:
-    - Docente → solo estudiantes de su grupo.
-    - Estudiante → solo docentes de su grupo.
-
-    Si recibe parámetros GET (?para=ID&asunto=...&respuesta_de=ID), los usa para
-    prellenar el formulario (responder a un mensaje).
-    """
     if request.method == 'POST':
         form = MensajeForm(request.POST, user=request.user)
         if form.is_valid():
             mensaje = form.save(commit=False)
             mensaje.remitente = request.user
 
-            # Leer respuesta_de desde el POST (hidden en el formulario)
             respuesta_id = request.POST.get('respuesta_de')
             if respuesta_id:
                 mensaje.respuesta_de = Mensaje.objects.filter(id=respuesta_id).first()
@@ -290,12 +268,10 @@ def redactar_mensaje_view(request):
         initial = {}
         respuesta_id = request.GET.get('respuesta_de')
 
-        # Prellenar destinatario si viene ?para=ID
         destinatario_id = request.GET.get('para')
         if destinatario_id:
             initial['destinatario'] = destinatario_id
 
-        # Prellenar asunto si viene ?asunto=...
         asunto_original = request.GET.get('asunto')
         if asunto_original:
             asunto_original = asunto_original.strip()
@@ -314,31 +290,21 @@ def redactar_mensaje_view(request):
 
 @login_required
 def detalle_mensaje_view(request, mensaje_id):
-    """
-    Muestra un mensaje individual y, si el usuario es el destinatario,
-    lo marca como leído.
-    """
     mensaje = get_object_or_404(Mensaje, id=mensaje_id)
 
-    # Seguridad: solo remitente o destinatario pueden ver el mensaje
     if mensaje.destinatario != request.user and mensaje.remitente != request.user:
         messages.error(request, "No tienes permiso para ver este mensaje.")
         return redirect('bandeja_entrada')
 
-    # Si el usuario es el destinatario y el mensaje aún no está leído, marcarlo
     if mensaje.destinatario == request.user and not mensaje.leido:
         mensaje.leido = True
         mensaje.save(update_fields=['leido'])
 
-    # Determinar a quién se le responde:
-    # - Si yo soy el destinatario → respondo al remitente
-    # - Si yo soy el remitente → respondo al destinatario
     if request.user == mensaje.destinatario:
         usuario_respuesta = mensaje.remitente
     else:
         usuario_respuesta = mensaje.destinatario
 
-    # Determinar a qué dashboard volver
     perfil = Perfil.objects.filter(user=request.user).first()
     dashboard_url = None
     if perfil:
@@ -352,3 +318,19 @@ def detalle_mensaje_view(request, mensaje_id):
         'usuario_respuesta': usuario_respuesta,
         'dashboard_url': dashboard_url,
     })
+
+
+@login_required
+def eliminar_mensaje_view(request, mensaje_id):
+    """
+    Permite eliminar un mensaje únicamente si el usuario es el remitente.
+    """
+    mensaje = get_object_or_404(Mensaje, id=mensaje_id)
+
+    if mensaje.remitente != request.user:
+        messages.error(request, "Solo el remitente puede eliminar este mensaje.")
+        return redirect('bandeja_entrada')
+
+    mensaje.delete()
+    messages.success(request, "Mensaje eliminado correctamente.")
+    return redirect('mensajes_enviados')

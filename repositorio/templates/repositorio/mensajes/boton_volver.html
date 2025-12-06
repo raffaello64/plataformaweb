@@ -1,0 +1,9 @@
+{% if request.user.perfil.tipo == 'docente' %}
+    <a href="{% url 'dashboard_docente' %}" class="btn btn-outline-secondary btn-sm">
+        Volver a inicio
+    </a>
+{% else %}
+    <a href="{% url 'dashboard_estudiante' %}" class="btn btn-outline-secondary btn-sm">
+        Volver a inicio
+    </a>
+{% endif %}

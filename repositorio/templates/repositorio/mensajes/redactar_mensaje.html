@@ -8,12 +8,26 @@
         <h2 class="mb-0">Redactar mensaje</h2>
 
         <div class="d-flex gap-2">
+
+            {# 🔙 Volver a inicio según el tipo de usuario #}
+            {% if request.user.perfil.tipo == 'docente' %}
+                <a href="{% url 'dashboard_docente' %}" class="btn btn-outline-secondary btn-sm">
+                    Volver a inicio
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard_estudiante' %}" class="btn btn-outline-secondary btn-sm">
+                    Volver a inicio
+                </a>
+            {% endif %}
+
             <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-secondary btn-sm">
                 Ver recibidos
             </a>
+
             <a href="{% url 'mensajes_enviados' %}" class="btn btn-outline-secondary btn-sm">
                 Ver enviados
             </a>
+
         </div>
     </div>
 
@@ -23,7 +37,7 @@
             <form method="post">
                 {% csrf_token %}
 
-                {# Campo oculto para conservar el mensaje original al responder #}
+                {# Campo oculto para mantener el hilo de respuesta #}
                 {% if respuesta_de_id %}
                     <input type="hidden" name="respuesta_de" value="{{ respuesta_de_id }}">
                 {% endif %}
