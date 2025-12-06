@@ -81,7 +81,7 @@ class Mensaje(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
     leido = models.BooleanField(default=False)
 
-    # 🔗 Este campo indica a qué mensaje concreto responde este mensaje (como en un email)
+    # Este campo indica a qué mensaje concreto responde este mensaje
     respuesta_de = models.ForeignKey(
         'self',
         null=True,
@@ -89,6 +89,10 @@ class Mensaje(models.Model):
         on_delete=models.SET_NULL,
         related_name='respuestas'
     )
+
+    # Nuevos campos: ocultar para cada usuario sin borrar de la base de datos
+    oculto_para_remitente = models.BooleanField(default=False)
+    oculto_para_destinatario = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.remitente.username} → {self.destinatario.username}: {self.asunto}"

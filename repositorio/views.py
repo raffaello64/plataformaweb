@@ -74,7 +74,8 @@ def dashboard_docente_view(request):
 
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
-        leido=False
+        leido=False,
+        oculto_para_destinatario=False
     ).count()
 
     return render(request, 'repositorio/dashboard_docente.html', {
@@ -101,7 +102,8 @@ def dashboard_estudiante_view(request):
 
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
-        leido=False
+        leido=False,
+        oculto_para_destinatario=False
     ).count()
 
     return render(request, 'repositorio/dashboard_estudiante.html', {
@@ -235,7 +237,11 @@ def importar_usuarios_view(request):
 
 @login_required
 def bandeja_entrada_view(request):
-    mensajes = Mensaje.objects.filter(destinatario=request.user).order_by('-creado')
+    mensajes = Mensaje.objects.filter(
+        destinatario=request.user,
+        oculto_para_destinatario=False
+    ).order_by('-creado')
+
     return render(request, 'repositorio/mensajes/bandeja_entrada.html', {
         'mensajes': mensajes,
     })
@@ -243,7 +249,11 @@ def bandeja_entrada_view(request):
 
 @login_required
 def mensajes_enviados_view(request):
-    mensajes = Mensaje.objects.filter(remitente=request.user).order_by('-creado')
+    mensajes = Mensaje.objects.filter(
+        remitente=request.user,
+        oculto_para_remitente=False
+    ).order_by('-creado')
+
     return render(request, 'repositorio/mensajes/mensajes_enviados.html', {
         'mensajes': mensajes,
     })
@@ -323,14 +333,24 @@ def detalle_mensaje_view(request, mensaje_id):
 @login_required
 def eliminar_mensaje_view(request, mensaje_id):
     """
-    Permite eliminar un mensaje únicamente si el usuario es el remitente.
+    Marca un mensaje como oculto para el usuario actual, sin borrarlo de la base de datos.
+    - Si el usuario es el remitente: se oculta en 'Mensajes enviados'.
+    - Si el usuario es el destinatario: se oculta en 'Mensajes recibidos'.
     """
     mensaje = get_object_or_404(Mensaje, id=mensaje_id)
 
-    if mensaje.remitente != request.user:
-        messages.error(request, "Solo el remitente puede eliminar este mensaje.")
+    if mensaje.remitente != request.user and mensaje.destinatario != request.user:
+        messages.error(request, "No tienes permiso para modificar este mensaje.")
         return redirect('bandeja_entrada')
 
-    mensaje.delete()
-    messages.success(request, "Mensaje eliminado correctamente.")
-    return redirect('mensajes_enviados')
+    if mensaje.remitente == request.user:
+        mensaje.oculto_para_remitente = True
+        mensaje.save(update_fields=['oculto_para_remitente'])
+        messages.success(request, "Mensaje eliminado de tus enviados.")
+        return redirect('mensajes_enviados')
+
+    if mensaje.destinatario == request.user:
+        mensaje.oculto_para_destinatario = True
+        mensaje.save(update_fields=['oculto_para_destinatario'])
+        messages.success(request, "Mensaje eliminado de tu bandeja de entrada.")
+        return redirect('bandeja_entrada')
