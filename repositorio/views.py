@@ -4,7 +4,6 @@ Se almacenan las vistas que procesan las solicitudes de los usuarios
 y se generan las páginas correspondientes.
 """
 
-
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponse
 from django.utils.crypto import get_random_string
@@ -15,8 +14,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 
-from .forms import DocumentoForm, UploadFileForm
-from .models import Documento, Perfil, Grupo
+from .forms import DocumentoForm, UploadFileForm, MensajeForm
+from .models import Documento, Perfil, Grupo, Mensaje
 
 
 # Log in
@@ -79,6 +78,7 @@ def dashboard_docente_view(request):
         'documentos': documentos,
         'perfil': perfil
     })
+
 
 # Página de inicio del estudiante
 @login_required
@@ -174,7 +174,7 @@ def descargar_documento_view(request, documento_id):
     return response
 
 
-# Importar datos desde cdv para creación de credenciales
+# Importar datos desde csv para creación de credenciales
 @user_passes_test(lambda u: u.is_superuser)
 def importar_usuarios_view(request):
     if request.method == 'POST':
@@ -216,3 +216,75 @@ def importar_usuarios_view(request):
         form = UploadFileForm()
 
     return render(request, 'repositorio/importar_usuarios.html', {'form': form})
+
+
+# ==========================
+#     SISTEMA DE MENSAJES
+# ==========================
+
+@login_required
+def bandeja_entrada_view(request):
+    """
+    Muestra los mensajes recibidos por el usuario logueado.
+    """
+    mensajes = Mensaje.objects.filter(destinatario=request.user).order_by('-creado')
+    return render(request, 'repositorio/mensajes/bandeja_entrada.html', {
+        'mensajes': mensajes,
+    })
+
+
+@login_required
+def mensajes_enviados_view(request):
+    """
+    Muestra los mensajes enviados por el usuario logueado.
+    """
+    mensajes = Mensaje.objects.filter(remitente=request.user).order_by('-creado')
+    return render(request, 'repositorio/mensajes/mensajes_enviados.html', {
+        'mensajes': mensajes,
+    })
+
+
+@login_required
+def redactar_mensaje_view(request):
+    """
+    Permite enviar un mensaje a usuarios del mismo grupo:
+    - Docente → solo estudiantes de su grupo.
+    - Estudiante → solo docentes de su grupo.
+    """
+    if request.method == 'POST':
+        form = MensajeForm(request.POST, user=request.user)
+        if form.is_valid():
+            mensaje = form.save(commit=False)
+            mensaje.remitente = request.user
+            mensaje.save()
+            messages.success(request, "Mensaje enviado correctamente.")
+            return redirect('bandeja_entrada')
+    else:
+        form = MensajeForm(user=request.user)
+
+    return render(request, 'repositorio/mensajes/redactar_mensaje.html', {
+        'form': form,
+    })
+
+
+@login_required
+def detalle_mensaje_view(request, mensaje_id):
+    """
+    Muestra un mensaje individual y, si el usuario es el destinatario,
+    lo marca como leído.
+    """
+    mensaje = get_object_or_404(Mensaje, id=mensaje_id)
+
+    # Seguridad: solo remitente o destinatario pueden ver el mensaje
+    if mensaje.destinatario != request.user and mensaje.remitente != request.user:
+        messages.error(request, "No tienes permiso para ver este mensaje.")
+        return redirect('bandeja_entrada')
+
+    # Si el usuario es el destinatario y el mensaje aún no está leído, marcarlo
+    if mensaje.destinatario == request.user and not mensaje.leido:
+        mensaje.leido = True
+        mensaje.save(update_fields=['leido'])
+
+    return render(request, 'repositorio/mensajes/mensaje_detalle.html', {
+        'mensaje': mensaje,
+    })

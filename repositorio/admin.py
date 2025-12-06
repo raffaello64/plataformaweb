@@ -3,7 +3,7 @@ Acá se ingresan los modelos al panel que administra el superusuario.
 """
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import Perfil, Documento, Grupo
+from .models import Perfil, Documento, Grupo, Mensaje
 
 # --- Ocultar modelo Group del panel ---
 admin.site.unregister(Group)
@@ -35,3 +35,15 @@ class DocumentoAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'docente', 'grupo', 'creado')
     search_fields = ('titulo', 'docente__username')
     list_filter = ('grupo', 'creado')
+
+
+# =======================
+#   REGISTRO DE MENSAJES
+# =======================
+@admin.register(Mensaje)
+class MensajeAdmin(admin.ModelAdmin):
+    list_display = ('remitente', 'destinatario', 'asunto', 'creado', 'leido')
+    search_fields = ('remitente__username', 'destinatario__username', 'asunto')
+    list_filter = ('leido', 'creado')
+    ordering = ('-creado',)
+

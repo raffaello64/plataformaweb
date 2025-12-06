@@ -1,0 +1,54 @@
+{% extends "repositorio/base.html" %}
+{% block title %}Mensajes enviados{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">Mensajes enviados</h2>
+            <p class="text-muted mb-0">Historial de mensajes enviados</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'redactar_mensaje' %}" class="btn btn-success btn-sm">
+                Nuevo mensaje
+            </a>
+            <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-secondary btn-sm">
+                Ver recibidos
+            </a>
+        </div>
+    </div>
+
+    {% if mensajes %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped table-hover table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Para</th>
+                            <th scope="col">Asunto</th>
+                            <th scope="col">Fecha</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for m in mensajes %}
+                        <tr>
+                            <td>{{ m.destinatario.username }}</td>
+                            <td>{{ m.asunto }}</td>
+                            <td>{{ m.creado|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <p class="text-muted">Aún no has enviado ningún mensaje.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

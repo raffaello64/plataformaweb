@@ -1,0 +1,66 @@
+{% extends "repositorio/base.html" %}
+{% block title %}Mensajes recibidos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">Mensajes recibidos</h2>
+            <p class="text-muted mb-0">Bandeja de entrada</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'redactar_mensaje' %}" class="btn btn-success btn-sm">
+                Nuevo mensaje
+            </a>
+            <a href="{% url 'mensajes_enviados' %}" class="btn btn-outline-secondary btn-sm">
+                Ver enviados
+            </a>
+        </div>
+    </div>
+
+    {% if mensajes %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped table-hover table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">De</th>
+                            <th scope="col">Asunto</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for m in mensajes %}
+                        <tr>
+                            <td>{{ m.remitente.username }}</td>
+                            <td>
+                                <a href="{% url 'detalle_mensaje' m.id %}">
+                                    {{ m.asunto }}
+                                </a>
+                            </td>
+                            <td>{{ m.creado|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if m.leido %}
+                                    <span class="badge bg-secondary">Leído</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Nuevo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <p class="text-muted">No tienes mensajes recibidos.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

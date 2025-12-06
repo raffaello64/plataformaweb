@@ -1,0 +1,50 @@
+{% extends "repositorio/base.html" %}
+{% block title %}Nuevo mensaje{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Redactar mensaje</h2>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-secondary btn-sm">
+                Ver recibidos
+            </a>
+            <a href="{% url 'mensajes_enviados' %}" class="btn btn-outline-secondary btn-sm">
+                Ver enviados
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="destinatario" class="form-label">Destinatario</label>
+                    {{ form.destinatario|as_widget }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="asunto" class="form-label">Asunto</label>
+                    {{ form.asunto|as_widget }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="contenido" class="form-label">Mensaje</label>
+                    {{ form.contenido|as_widget }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Enviar mensaje
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

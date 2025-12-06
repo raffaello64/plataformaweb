@@ -3,7 +3,6 @@ Interfaz en la que los docentes visualizar
 los archivos que han subido a la plataforma y agregar si es necesario
 -->
 
-
 {% extends 'repositorio/base.html' %}
 {% block title %}Dashboard Docente{% endblock %}
 
@@ -20,8 +19,9 @@ los archivos que han subido a la plataforma y agregar si es necesario
         </div>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3 d-flex gap-2">
         <a href="{% url 'subir_documento' %}" class="btn btn-success btn-sm">Subir nuevo documento</a>
+        <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm">Mensajes</a>
     </div>
 
     <div class="card shadow-sm">

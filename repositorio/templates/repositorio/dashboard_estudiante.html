@@ -3,7 +3,6 @@ Interfaz para que al iniciar sesión el estudiante
 pueda visualizar los archivos subidos por el docente.
 -->
 
-
 {% extends 'repositorio/base.html' %}
 {% block title %}Dashboard Estudiante{% endblock %}
 
@@ -18,6 +17,13 @@ pueda visualizar los archivos subidos por el docente.
             <a href="{% url 'password_change' %}" class="btn btn-outline-secondary btn-sm me-2">Cambiar contraseña</a>
             <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Cerrar sesión</a>
         </div>
+    </div>
+
+    <!-- Botón de Mensajes -->
+    <div class="mb-3">
+        <a href="{% url 'bandeja_entrada' %}" class="btn btn-outline-primary btn-sm">
+            Mensajes
+        </a>
     </div>
 
     <div class="card shadow-sm">
@@ -48,7 +54,6 @@ pueda visualizar los archivos subidos por el docente.
                                     Descargar
                                 </a>
                             </td>
-
                             <td>{{ doc.creado|date:"d/m/Y H:i" }}</td>
                         </tr>
                         {% endfor %}

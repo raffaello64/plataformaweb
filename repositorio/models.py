@@ -4,7 +4,6 @@ Acá se encuentran los modelos de usuarios, documentos y grupos
 y las correlaciones adentro del programa
 """
 
-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -64,3 +63,27 @@ class Perfil(models.Model):
     class Meta:
         verbose_name = "Perfil"
         verbose_name_plural = "Perfiles"
+
+
+class Mensaje(models.Model):
+    remitente = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mensajes_enviados'
+    )
+    destinatario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mensajes_recibidos'
+    )
+    asunto = models.CharField(max_length=200)
+    contenido = models.TextField()
+    creado = models.DateTimeField(auto_now_add=True)
+    leido = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.remitente.username} → {self.destinatario.username}: {self.asunto}"
+
+    class Meta:
+        verbose_name = "Mensaje"
+        verbose_name_plural = "Mensajes"
