@@ -81,6 +81,15 @@ class Mensaje(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
     leido = models.BooleanField(default=False)
 
+    # 🔗 Este campo indica a qué mensaje concreto responde este mensaje (como en un email)
+    respuesta_de = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='respuestas'
+    )
+
     def __str__(self):
         return f"{self.remitente.username} → {self.destinatario.username}: {self.asunto}"
 

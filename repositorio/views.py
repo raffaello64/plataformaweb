@@ -75,7 +75,7 @@ def dashboard_docente_view(request):
 
     documentos = Documento.objects.filter(docente=request.user).order_by('-creado')
 
-    # Contar mensajes no leídos para el usuario actual
+    # Contar mensajes no leídos
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
         leido=False
@@ -86,7 +86,6 @@ def dashboard_docente_view(request):
         'perfil': perfil,
         'mensajes_no_leidos': mensajes_no_leidos,
     })
-
 
 
 # Página de inicio del estudiante
@@ -104,7 +103,7 @@ def dashboard_estudiante_view(request):
     grupo = perfil.grupo if perfil else None
     documentos = Documento.objects.filter(grupo=grupo).order_by('-creado') if grupo else Documento.objects.none()
 
-    # Contar mensajes no leídos para el usuario actual
+    # Contar mensajes no leídos
     mensajes_no_leidos = Mensaje.objects.filter(
         destinatario=request.user,
         leido=False
@@ -116,7 +115,6 @@ def dashboard_estudiante_view(request):
         'perfil': perfil,
         'mensajes_no_leidos': mensajes_no_leidos,
     })
-
 
 
 # Subir archivos
@@ -226,7 +224,10 @@ def importar_usuarios_view(request):
                 writer.writerow([username, password, tipo, grupo_nombre])
 
             # ✅ Mostrar mensaje de éxito en pantalla
-            messages.success(request, "Usuarios importados correctamente. El archivo con credenciales se descargará automáticamente.")
+            messages.success(
+                request,
+                "Usuarios importados correctamente. El archivo con credenciales se descargará automáticamente."
+            )
 
             return response
     else:
@@ -267,17 +268,42 @@ def redactar_mensaje_view(request):
     Permite enviar un mensaje a usuarios del mismo grupo:
     - Docente → solo estudiantes de su grupo.
     - Estudiante → solo docentes de su grupo.
+
+    Si recibe parámetros GET (?para=ID&asunto=...&respuesta_de=ID), los usa para
+    prellenar el formulario (responder a un mensaje).
     """
     if request.method == 'POST':
         form = MensajeForm(request.POST, user=request.user)
         if form.is_valid():
             mensaje = form.save(commit=False)
             mensaje.remitente = request.user
+
+            # Si viene un mensaje original en la URL (?respuesta_de=ID), guardarlo
+            respuesta_id = request.GET.get('respuesta_de')
+            if respuesta_id:
+                mensaje.respuesta_de = Mensaje.objects.filter(id=respuesta_id).first()
+
             mensaje.save()
             messages.success(request, "Mensaje enviado correctamente.")
             return redirect('bandeja_entrada')
     else:
-        form = MensajeForm(user=request.user)
+        initial = {}
+
+        # Prellenar destinatario si viene ?para=ID
+        destinatario_id = request.GET.get('para')
+        if destinatario_id:
+            initial['destinatario'] = destinatario_id
+
+        # Prellenar asunto si viene ?asunto=...
+        asunto_original = request.GET.get('asunto')
+        if asunto_original:
+            asunto_original = asunto_original.strip()
+            if asunto_original.lower().startswith('re:'):
+                initial['asunto'] = asunto_original
+            else:
+                initial['asunto'] = f"Re: {asunto_original}"
+
+        form = MensajeForm(user=request.user, initial=initial)
 
     return render(request, 'repositorio/mensajes/redactar_mensaje.html', {
         'form': form,
@@ -302,6 +328,25 @@ def detalle_mensaje_view(request, mensaje_id):
         mensaje.leido = True
         mensaje.save(update_fields=['leido'])
 
+    # Determinar a quién se le responde:
+    # - Si yo soy el destinatario → respondo al remitente
+    # - Si yo soy el remitente → respondo al destinatario
+    if request.user == mensaje.destinatario:
+        usuario_respuesta = mensaje.remitente
+    else:
+        usuario_respuesta = mensaje.destinatario
+
+    # Determinar a qué dashboard volver
+    perfil = Perfil.objects.filter(user=request.user).first()
+    dashboard_url = None
+    if perfil:
+        if perfil.tipo == 'docente':
+            dashboard_url = 'dashboard_docente'
+        elif perfil.tipo == 'estudiante':
+            dashboard_url = 'dashboard_estudiante'
+
     return render(request, 'repositorio/mensajes/mensaje_detalle.html', {
         'mensaje': mensaje,
+        'usuario_respuesta': usuario_respuesta,
+        'dashboard_url': dashboard_url,
     })
