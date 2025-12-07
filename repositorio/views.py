@@ -9,6 +9,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.utils.crypto import get_random_string
 import csv
 import os
+import unicodedata  # Para normalizar usernames generados
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
@@ -17,6 +18,10 @@ from django.contrib.auth.models import User
 from .forms import DocumentoForm, UploadFileForm, MensajeForm
 from .models import Documento, Perfil, Grupo, Mensaje
 
+
+# ==========================
+#         AUTENTICACIÓN
+# ==========================
 
 # Log in
 def login_view(request):
@@ -54,6 +59,10 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+
+# ==========================
+#        DASHBOARDS
+# ==========================
 
 # Página de inicio del docente
 @login_required
@@ -111,6 +120,10 @@ def dashboard_estudiante_view(request):
         'mensajes_no_leidos': mensajes_no_leidos,
     })
 
+
+# ==========================
+#        DOCUMENTOS
+# ==========================
 
 # Subir archivos
 @login_required
@@ -184,38 +197,83 @@ def descargar_documento_view(request, documento_id):
     return response
 
 
-# Importar datos desde csv para creación de credenciales
+# ==========================
+#   IMPORTAR USUARIOS CSV
+# ==========================
+
+def _normalizar_username(texto: str) -> str:
+    """
+    Quita acentos y caracteres raros para usar en el username.
+    'José Pérez' -> 'joseperez'
+    """
+    texto = texto.lower().strip()
+    texto = unicodedata.normalize('NFKD', texto).encode('ascii', 'ignore').decode('ascii')
+    return ''.join(c for c in texto if c.isalnum())
+
+
 @user_passes_test(lambda u: u.is_superuser)
 def importar_usuarios_view(request):
+    """
+    Importa usuarios desde un CSV con columnas:
+    nombre,apellido,tipo,grupo
+
+    - genera username automáticamente: primera letra del nombre + apellido
+      (normalizado y en minúsculas, sin tildes, sin espacios).
+    - genera una contraseña aleatoria.
+    - crea Perfil con tipo (docente/estudiante) y grupo.
+    - devuelve un CSV con las credenciales generadas.
+    """
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             archivo = form.cleaned_data['archivo']
             reader = csv.DictReader(archivo.read().decode('utf-8').splitlines())
 
+            # CSV de salida con credenciales generadas
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename=usuarios_creados.csv'
 
             writer = csv.writer(response)
-            writer.writerow(['username', 'password', 'tipo', 'grupo'])
+            writer.writerow(['username', 'password', 'nombre', 'apellido', 'tipo', 'grupo'])
 
             for row in reader:
-                username = row['username']
-                tipo = row['tipo'].lower().strip()
+                nombre = row.get('nombre', '').strip()
+                apellido = row.get('apellido', '').strip()
+                tipo = row.get('tipo', '').lower().strip()
                 grupo_nombre = row.get('grupo', '').strip() or None
 
-                if User.objects.filter(username=username).exists():
+                # Validación básica de fila
+                if not nombre or not apellido or tipo not in ('docente', 'estudiante'):
                     continue
 
+                # Generar username base: primera letra del nombre + apellido
+                base_username = _normalizar_username(
+                    f"{nombre.split()[0][0]}{apellido.split()[0]}"
+                )
+
+                username = base_username
+                contador = 1
+                # Asegurar username único
+                while User.objects.filter(username=username).exists():
+                    contador += 1
+                    username = f"{base_username}{contador}"
+
                 password = get_random_string(length=10)
-                user = User.objects.create_user(username=username, password=password)
+
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    first_name=nombre,
+                    last_name=apellido,
+                )
 
                 grupo = None
                 if grupo_nombre:
                     grupo, _ = Grupo.objects.get_or_create(nombre=grupo_nombre)
 
                 Perfil.objects.create(user=user, tipo=tipo, grupo=grupo)
-                writer.writerow([username, password, tipo, grupo_nombre])
+
+                writer.writerow([username, password, nombre, apellido, tipo, grupo_nombre])
 
             messages.success(
                 request,
@@ -356,5 +414,4 @@ def eliminar_mensaje_view(request, mensaje_id):
         messages.success(request, "Mensaje eliminado de tu bandeja de entrada.")
         return redirect('bandeja_entrada')
 
-    # En teoría no deberíamos llegar aquí, pero por si acaso:
     return redirect('bandeja_entrada')
