@@ -70,4 +70,22 @@
                                 <form action="{% url 'eliminar_mensaje' m.id %}" method="post"
                                       onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje enviado?');">
                                     {% csrf_token %}
-                                    <but
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <p class="text-muted">Aún no has enviado ningún mensaje.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
