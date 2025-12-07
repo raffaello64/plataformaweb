@@ -4,17 +4,86 @@
 {% block content %}
 <div id="content-main">
 
-    {# Lista normal de apps del admin (Autenticación, Repositorio, etc.) #}
-    {% if app_list %}
-        {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
-    {% else %}
-        <p>{% translate "You don’t have permission to view or edit anything." %}</p>
-    {% endif %}
+    {# =============================== #}
+    {#  SECCIÓN: AUTENTICACIÓN        #}
+    {# =============================== #}
+    <div class="module">
+        <table>
+            <caption class="section"
+                      style="background-color:#2c576e; color:white; padding:8px; font-weight:bold;">
+                AUTENTICACIÓN Y AUTORIZACIÓN
+            </caption>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:auth_user_changelist' %}">Usuarios</a>
+                    </th>
+                    <td class="action-wrapper">
+                        <a href="{% url 'admin:auth_user_add' %}" class="addlink">Añadir</a>
+                        <a href="{% url 'admin:auth_user_changelist' %}" class="changelink">Modificar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    {# Nuestra nueva sección azul #}
+    {# =============================== #}
+    {#  SECCIÓN: REPOSITORIO          #}
+    {# =============================== #}
     <div class="module" style="margin-top: 20px;">
         <table>
-            <caption style="background-color:#2c576e; color:white; padding:8px; font-weight:bold;">
+            <caption class="section"
+                      style="background-color:#2c576e; color:white; padding:8px; font-weight:bold;">
+                REPOSITORIO
+            </caption>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:repositorio_documento_changelist' %}">Documentos</a>
+                    </th>
+                    <td class="action-wrapper">
+                        <a href="{% url 'admin:repositorio_documento_add' %}" class="addlink">Añadir</a>
+                        <a href="{% url 'admin:repositorio_documento_changelist' %}" class="changelink">Modificar</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:repositorio_grupo_changelist' %}">Grupos</a>
+                    </th>
+                    <td class="action-wrapper">
+                        <a href="{% url 'admin:repositorio_grupo_add' %}" class="addlink">Añadir</a>
+                        <a href="{% url 'admin:repositorio_grupo_changelist' %}" class="changelink">Modificar</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:repositorio_mensaje_changelist' %}">Mensajes</a>
+                    </th>
+                    <td class="action-wrapper">
+                        <a href="{% url 'admin:repositorio_mensaje_add' %}" class="addlink">Añadir</a>
+                        <a href="{% url 'admin:repositorio_mensaje_changelist' %}" class="changelink">Modificar</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:repositorio_perfil_changelist' %}">Perfiles</a>
+                    </th>
+                    <td class="action-wrapper">
+                        <a href="{% url 'admin:repositorio_perfil_add' %}" class="addlink">Añadir</a>
+                        <a href="{% url 'admin:repositorio_perfil_changelist' %}" class="changelink">Modificar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {# =============================== #}
+    {#  SECCIÓN: IMPORTACIÓN USUARIOS #}
+    {# =============================== #}
+    <div class="module" style="margin-top: 20px;">
+        <table>
+            <caption class="section"
+                      style="background-color:#2c576e; color:white; padding:8px; font-weight:bold;">
                 IMPORTACIÓN DE USUARIOS
             </caption>
             <tbody>
