@@ -5,7 +5,11 @@
 <div id="content-main">
 
     {# Lista normal de apps del admin (Autenticación, Repositorio, etc.) #}
-    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+    {% if app_list %}
+        {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+    {% else %}
+        <p>{% translate "You don’t have permission to view or edit anything." %}</p>
+    {% endif %}
 
     {# Nuestra nueva sección azul #}
     <div class="module" style="margin-top: 20px;">
@@ -28,5 +32,10 @@
         </table>
     </div>
 
+</div>
+
+<div id="content-related">
+    {# Recuperamos el bloque de acciones recientes del admin original #}
+    {% include "admin/recent_actions.html" %}
 </div>
 {% endblock %}
