@@ -1,0 +1,28 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+
+{{ block.super }}
+
+<div class="module" style="margin-top: 20px;">
+    <table>
+        <caption style="background-color:#2c576e; color:white; padding:8px; font-weight:bold;">
+            IMPORTACIÓN DE USUARIOS
+        </caption>
+        <tbody>
+            <tr>
+                <th scope="row">
+                    <a href="{% url 'importar_usuarios' %}" style="font-weight:bold;">
+                        Importar usuarios desde CSV
+                    </a>
+                </th>
+                <td class="action-wrapper">
+                    <a href="{% url 'importar_usuarios' %}" class="addlink">Ir</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
