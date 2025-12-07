@@ -49,29 +49,25 @@
                         {% for m in mensajes %}
                         <tr>
                             <td>{{ m.destinatario.username }}</td>
-                            <td>{{ m.asunto }}</td>
+
+                            {# Asunto como enlace al detalle del mensaje #}
+                            <td>
+                                <a href="{% url 'detalle_mensaje' m.id %}">
+                                    {{ m.asunto }}
+                                </a>
+                            </td>
+
                             <td>{{ m.creado|date:"d/m/Y H:i" }}</td>
 
-                            <td class="text-center">
+                            <td class="text-center d-flex justify-content-center gap-2">
+
+                                {# Botón para ver #}
+                                <a href="{% url 'detalle_mensaje' m.id %}" class="btn btn-sm btn-outline-primary">
+                                    Ver
+                                </a>
+
+                                {# Botón para “eliminar” (ocultar) #}
                                 <form action="{% url 'eliminar_mensaje' m.id %}" method="post"
                                       onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje enviado?');">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Eliminar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-
-    {% else %}
-        <p class="text-muted">Aún no has enviado ningún mensaje.</p>
-    {% endif %}
-
-</div>
-{% endblock %}
+                                    <but

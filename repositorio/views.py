@@ -72,10 +72,9 @@ def dashboard_docente_view(request):
 
     documentos = Documento.objects.filter(docente=request.user).order_by('-creado')
 
-    mensajes_no_leidos = Mensaje.objects.filter(
-        destinatario=request.user,
-        leido=False,
-        oculto_para_destinatario=False
+    # Contador de mensajes no leídos (solo los visibles para el usuario)
+    mensajes_no_leidos = Mensaje.objects.recibidos_por(request.user).filter(
+        leido=False
     ).count()
 
     return render(request, 'repositorio/dashboard_docente.html', {
@@ -100,10 +99,9 @@ def dashboard_estudiante_view(request):
     grupo = perfil.grupo if perfil else None
     documentos = Documento.objects.filter(grupo=grupo).order_by('-creado') if grupo else Documento.objects.none()
 
-    mensajes_no_leidos = Mensaje.objects.filter(
-        destinatario=request.user,
-        leido=False,
-        oculto_para_destinatario=False
+    # Contador de mensajes no leídos (solo los visibles para el usuario)
+    mensajes_no_leidos = Mensaje.objects.recibidos_por(request.user).filter(
+        leido=False
     ).count()
 
     return render(request, 'repositorio/dashboard_estudiante.html', {
@@ -237,10 +235,8 @@ def importar_usuarios_view(request):
 
 @login_required
 def bandeja_entrada_view(request):
-    mensajes = Mensaje.objects.filter(
-        destinatario=request.user,
-        oculto_para_destinatario=False
-    ).order_by('-creado')
+    # Mensajes recibidos que el usuario no ha ocultado
+    mensajes = Mensaje.objects.recibidos_por(request.user).order_by('-creado')
 
     return render(request, 'repositorio/mensajes/bandeja_entrada.html', {
         'mensajes': mensajes,
@@ -249,10 +245,8 @@ def bandeja_entrada_view(request):
 
 @login_required
 def mensajes_enviados_view(request):
-    mensajes = Mensaje.objects.filter(
-        remitente=request.user,
-        oculto_para_remitente=False
-    ).order_by('-creado')
+    # Mensajes enviados que el usuario no ha ocultado
+    mensajes = Mensaje.objects.enviados_por(request.user).order_by('-creado')
 
     return render(request, 'repositorio/mensajes/mensajes_enviados.html', {
         'mensajes': mensajes,
@@ -267,6 +261,7 @@ def redactar_mensaje_view(request):
             mensaje = form.save(commit=False)
             mensaje.remitente = request.user
 
+            # Soporte para "responder a" un mensaje existente
             respuesta_id = request.POST.get('respuesta_de')
             if respuesta_id:
                 mensaje.respuesta_de = Mensaje.objects.filter(id=respuesta_id).first()
@@ -300,16 +295,22 @@ def redactar_mensaje_view(request):
 
 @login_required
 def detalle_mensaje_view(request, mensaje_id):
-    mensaje = get_object_or_404(Mensaje, id=mensaje_id)
+    """
+    Muestra el detalle de un mensaje siempre que:
+    - el usuario sea remitente o destinatario
+    - y no lo haya ocultado (según los flags oculto_para_remitente / oculto_para_destinatario)
+    """
+    mensaje = get_object_or_404(
+        Mensaje.objects.visibles_para(request.user),
+        id=mensaje_id,
+    )
 
-    if mensaje.destinatario != request.user and mensaje.remitente != request.user:
-        messages.error(request, "No tienes permiso para ver este mensaje.")
-        return redirect('bandeja_entrada')
-
+    # Marcar como leído si el usuario es el destinatario
     if mensaje.destinatario == request.user and not mensaje.leido:
         mensaje.leido = True
         mensaje.save(update_fields=['leido'])
 
+    # Usuario al que se respondería (el "otro" en la conversación)
     if request.user == mensaje.destinatario:
         usuario_respuesta = mensaje.remitente
     else:
@@ -354,3 +355,6 @@ def eliminar_mensaje_view(request, mensaje_id):
         mensaje.save(update_fields=['oculto_para_destinatario'])
         messages.success(request, "Mensaje eliminado de tu bandeja de entrada.")
         return redirect('bandeja_entrada')
+
+    # En teoría no deberíamos llegar aquí, pero por si acaso:
+    return redirect('bandeja_entrada')
