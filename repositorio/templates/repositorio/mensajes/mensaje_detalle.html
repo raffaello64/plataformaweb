@@ -9,7 +9,7 @@
 
         <div class="d-flex gap-2">
 
-            {# Usamos dashboard_url que viene de la vista, para no depender de request.user.perfil en el template #}
+            {# Volver al dashboard correspondiente (docente/estudiante) #}
             {% if dashboard_url %}
                 <a href="{% url dashboard_url %}" class="btn btn-outline-secondary btn-sm">
                     Volver a inicio
@@ -29,21 +29,7 @@
                 Responder
             </a>
 
-            {# Aquí puedes decidir: solo remitente, o remitente y destinatario #}
-            {# Opción A: solo remitente (como tenías) #}
-            {#
-            {% if mensaje.remitente == request.user %}
-                <form action="{% url 'eliminar_mensaje' mensaje.id %}" method="post"
-                      onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje enviado?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        Eliminar
-                    </button>
-                </form>
-            {% endif %}
-            #}
-
-            {# Opción B: permitir que remitente o destinatario lo oculten desde aquí #}
+            {# ÚNICO botón de eliminar: lo ven remitente o destinatario #}
             {% if mensaje.remitente == request.user or mensaje.destinatario == request.user %}
                 <form action="{% url 'eliminar_mensaje' mensaje.id %}" method="post"
                       onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje de tu bandeja?');">
