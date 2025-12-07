@@ -33,9 +33,9 @@
     </div>
 
 </div>
+{% endblock %}
 
-<div id="content-related">
-    {# Recuperamos el bloque de acciones recientes del admin original #}
-    {% include "admin/recent_actions.html" %}
-</div>
+{# Columna derecha con acciones recientes #}
+{% block sidebar %}
+    {% include "admin/includes/recent_actions.html" %}
 {% endblock %}
